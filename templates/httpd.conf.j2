@@ -18,6 +18,9 @@ ServerAdmin root@localhost
 ServerSignature off
 ServerTokens Prod
 
+LimitRequestFieldsize {{ apache_limit_request_fieldsize }}
+LimitRequestLine {{ apache_limit_request_line }}
+
 ErrorLog "{{ apache_revproxy_logdir }}/error_log"
 LogLevel warn
 

@@ -52,6 +52,11 @@ gssapi_connection_bound: false         # Required as a workaround sometimes
 apache_ipa_username: "{{ ipaadmin_principal }}"
 apache_ipa_password: "{{ ipaadmin_password }}"
 
+# Request size limits
+# You might need to change these if you use Kerberos and have a large number of groups
+apache_limit_request_fieldsize: 8190
+apache_limit_request_line: 8190
+
 # Set to true if you are using certbot
 apache_certbot: false
 
