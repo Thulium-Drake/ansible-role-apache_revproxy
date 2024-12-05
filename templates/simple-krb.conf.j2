@@ -56,8 +56,9 @@
 
   ProxyRequests Off
   ProxyPreserveHost On
-  ProxyPass / {{ app['upstream'] }}/
+  ProxyPass / {{ app['upstream'] }}/  {{ app['upstream_opts'] | default('') }}
   ProxyPassReverse / {{ app['upstream'] }}/
+  AllowEncodedSlashes {{ app['encoded_slashes'] | default('Off') }}
   RequestHeader set X-Forwarded-Proto "https"
   RequestHeader set X-Remote-User %{REMOTE_USER}s
   {% if app['krb_strip_realm'] | default(false) %}RequestHeader edit X-Remote-User (?=@)(\S+) ''{% endif %}
