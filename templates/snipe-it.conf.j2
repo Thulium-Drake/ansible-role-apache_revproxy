@@ -1,0 +1,27 @@
+<VirtualHost *:80>
+   ServerName {{ app['name'] }}
+   Redirect permanent / https://{{ app['name'] }}/
+</VirtualHost>
+
+<VirtualHost *:443>
+  ServerName {{ app['name'] }}
+
+  SSLEngine on
+
+  SSLCertificateFile {{ app['cert'] }}
+  SSLCertificateKeyFile {{ app['key'] }}
+
+
+  <Directory /var/www/snipeit/public>
+		Allow From All
+		AllowOverride All
+		Options +Indexes +FollowSymLinks
+  </Directory>
+
+  <Directory /var/www>
+		AllowOverride All
+  </Directory>
+
+  DocumentRoot /var/www/snipeit/public
+
+</VirtualHost>
