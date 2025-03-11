@@ -35,6 +35,13 @@ require pam-account {{ app['hbac_service'] }}
 
   </Location>
 
+  # Forward bearer tokens to API when present
+  <IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTP:Authorization} ^(.*)
+    RewriteRule ^/zabbix/api_jsonrpc.php - [E=HTTP_AUTHORIZATION:%1]
+  </IfModule>
+
   RedirectMatch ^/$ /zabbix/
   RedirectMatch ^/img/(.*)$ /zabbix/assets/img/$1
   Alias /zabbix /usr/share/zabbix
