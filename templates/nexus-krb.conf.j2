@@ -12,6 +12,24 @@
   SSLCertificateFile {{ app.cert }}
   SSLCertificateKeyFile {{ app.key }}
 
+  <Location />
+    RewriteEngine on
+    RewriteCond %{REMOTE_USER} (.*)
+    RewriteRule .* - [E=ENV_REMOTE_USER:%1]
+    RequestHeader set X-Proxy-REMOTE-USER %{ENV_REMOTE_USER}e
+    RequestHeader unset Authorization
+
+    AuthName "Restricted Access"
+    AuthType GSSAPI
+    GssapiCredStore keytab:/etc/httpd/krb.keytab
+    GssapiAcceptorName HTTP@{{ ansible_facts['fqdn'] }}
+    GssapiLocalName On
+    GssapiBasicAuth {% if app['krb_passwd'] %}On{% else %}Off{% endif %}
+
+    GssapiAllowedMech krb5
+    require valid-user
+  </Location>
+
   ProxyPass / {{ app.upstream }}/
   ProxyPassReverse / {{ app.upstream }}/
   RequestHeader set X-Forwarded-Proto "https"
