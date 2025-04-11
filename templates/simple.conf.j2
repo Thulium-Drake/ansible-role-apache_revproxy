@@ -15,6 +15,15 @@
   ProxyPreserveHost On
   ProxyPass / {{ app['upstream'] }}/ {{ app['upstream_opts'] | default('') }}
   ProxyPassReverse / {{ app['upstream'] }}/
+
+  {% if 'https' in app['upstream'] %}
+  # Do not validate backend server
+  SSLProxyEngine on
+  SSLProxyCheckPeerCN Off
+  SSLProxyCheckPeerExpire Off
+  SSLProxyVerify none
+  {% endif %}
+
   AllowEncodedSlashes {{ app['encoded_slashes'] | default('Off') }}
   RequestHeader set X-Forwarded-Proto "https"
   {% if app['hsts'] %}Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains" {% endif %}
