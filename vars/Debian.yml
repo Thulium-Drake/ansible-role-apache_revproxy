@@ -1,0 +1,13 @@
+---
+apache_revproxy_packages:
+  - 'apache2'
+  - 'libapache2-mod-authnz-pam'
+
+apache_revproxy_basedir: '/etc/apache2'
+apache_revproxy_logdir: '/var/log/apache2'
+apache_revproxy_main_config: 'apache2.conf'
+apache_revproxy_service_name: 'apache2'
+apache_revproxy_service_user: 'www-data'
+
+apache_revproxy_kerberos_pkg:
+  - 'libapache2-mod-auth-gssapi'
