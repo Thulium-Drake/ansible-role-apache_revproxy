@@ -9,6 +9,7 @@
     - 'httpd_mod_auth_pam'
   loop_control:
     loop_var: 'sebool'
+  when: ansible_facts['selinux']['status'] == 'enabled'
 
 - name: 'Ensure firewalld port'
   ansible.posix.firewalld:
