@@ -5,7 +5,14 @@
       - apache_kerberos in apache_supported_kerberos
 
 - name: 'Include OS specific vars'
-  ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}-{{ ansible_facts['distribution_major_version'] }}.yml"
+  ansible.builtin.include_vars: "{{ lookup('first_found', role_vars_files) }}"
+  vars:
+    role_vars_files:
+      files:
+        - "{{ ansible_facts['os_family'] }}-{{ ansible_facts['distribution_major_version'] }}.yml"
+        - "{{ ansible_facts['os_family'] }}.yml"
+      paths:
+        - 'vars'
   no_log: true
 
 - name: 'Install packages'
