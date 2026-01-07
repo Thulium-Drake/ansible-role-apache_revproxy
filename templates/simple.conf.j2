@@ -36,7 +36,7 @@
   {% endif %}
 
   {% if app['extra_config'] is defined -%}
-  {{ app['extra_config'] }}
+  {{ app['extra_config'] | indent(2) }}
   {% endif %}
 
   ErrorLog {{ apache_revproxy_logdir }}/{{ app['name'] }}_error.log
