@@ -1,0 +1,63 @@
+<VirtualHost *:80>
+   ServerName {{ app['name'] }}
+   Redirect permanent / https://{{ app['name'] }}/
+</VirtualHost>
+
+<VirtualHost *:443>
+  ServerName {{ app['name'] }}
+
+  SSLEngine on
+
+  SSLCertificateFile {{ app['cert'] }}
+  SSLCertificateKeyFile {{ app['key'] }}
+
+  {% if app['hsts'] %}Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains" {% endif %}
+
+  OIDCProviderMetadataURL {{ app['oidc_autodiscover_url'] }}
+  OIDCRedirectURI https://{{ app['name'] }}/oauth2callback
+  OIDCCryptoPassphrase {{ app['oidc_random_passphrase'] }}
+  OIDCClientID {{ app['oidc_client_id'] }}
+  OIDCClientSecret {{ app['oidc_client_secret'] }}
+
+  OIDCRemoteUserClaim {{ app['oidc_remote_user_claim'] }}
+  OIDCScope "{{ app['oidc_scope'] }}"
+
+  <Location />
+    AuthType openid-connect
+    Require valid-user
+  </Location>
+
+  RedirectMatch ^/$ /dokuwiki/
+  AliasMatch ^/dokuwiki/sites/[^/]+$      /usr/share/dokuwiki/
+  AliasMatch ^/dokuwiki/sites/[^/]+/(.*)$ /usr/share/dokuwiki/$1
+  Alias      /dokuwiki                    /usr/share/dokuwiki/
+
+  <Directory /usr/share/dokuwiki/>
+    Options +FollowSymLinks
+    require all granted
+      <IfModule mod_rewrite.c>
+         RewriteEngine on
+         RewriteBase /dokuwiki
+         RewriteRule ^lib                      - [L]
+         RewriteRule ^doku.php                 - [L]
+         RewriteRule ^feed.php                 - [L]
+         RewriteRule ^install.php              - [L]
+         RewriteRule ^_media/(.*)              lib/exe/fetch.php?media=$1  [QSA,L]
+         RewriteRule ^_detail/(.*)             lib/exe/detail.php?media=$1 [QSA,L]
+         RewriteRule ^_export/([^/]+)/(.*)     doku.php?do=export_$1&id=$2 [QSA,L]
+         RewriteRule ^$                        doku.php  [L]
+         RewriteRule (.*)                      doku.php?id=$1  [QSA,L]
+      </IfModule>
+  </Directory>
+
+  <Directory /usr/share/dokuwiki/bin>
+          Require all denied
+  </Directory>
+
+  <Directory /var/lib/dokuwiki/data>
+          Require all denied
+  </Directory>
+
+  ErrorLog {{ apache_revproxy_logdir }}/{{ app['name'] }}_error.log
+  CustomLog {{ apache_revproxy_logdir }}/{{ app['name'] }}_access.log common
+</VirtualHost>
