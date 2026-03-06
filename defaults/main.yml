@@ -65,3 +65,7 @@ apache_revproxy_extra_packages: []
 # e.g. for Dokuwiki on Debian
 # - 'libapache2-mod-php'
 # - 'php-xml'
+
+# Show additional output when running role
+# NOTE: for some templates this can log secrets!
+apache_revproxy_debug: false

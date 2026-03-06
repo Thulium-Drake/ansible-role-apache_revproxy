@@ -1,0 +1,50 @@
+<VirtualHost *:80>
+   ServerName {{ app['name'] }}
+   Redirect permanent / https://{{ app['name'] }}/
+</VirtualHost>
+
+<VirtualHost *:443>
+  ServerName {{ app['name'] }}
+
+  SSLEngine on
+
+  SSLCertificateFile {{ app['cert'] }}
+  SSLCertificateKeyFile {{ app['key'] }}
+
+  OIDCProviderMetadataURL {{ app['oidc_autodiscover_url'] }}
+  OIDCRedirectURI https://{{ app['name'] }}/oauth2callback
+  OIDCCryptoPassphrase {{ app['oidc_random_passphrase'] }}
+  OIDCClientID {{ app['oidc_client_id'] }}
+  OIDCClientSecret {{ app['oidc_client_secret'] }}
+
+  OIDCRemoteUserClaim {{ app['oidc_remote_user_claim'] }}
+  OIDCScope "{{ app['oidc_scope'] }}"
+
+  <Location {{ app['location'] | default('/') }}>
+    AuthType openid-connect
+    Require valid-user
+  </Location>
+
+{{ app.extra_config_after_auth | default('') }}
+
+  ProxyRequests Off
+  ProxyPreserveHost On
+  ProxyPass / {{ app['upstream'] }}/  {{ app['upstream_opts'] | default('') }}
+  ProxyPassReverse / {{ app['upstream'] }}/
+  AllowEncodedSlashes {{ app['encoded_slashes'] | default('Off') }}
+  RequestHeader set X-Forwarded-Proto "https"
+  RequestHeader set X-Remote-User %{REMOTE_USER}s
+  {% if app['krb_strip_realm'] | default(false) %}RequestHeader edit X-Remote-User (?=@)(\S+) ''{% endif %}
+
+  {% if app['hsts'] %}Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains" {% endif %}
+
+  {% if app['websocket'] | default(false) -%}
+  RewriteEngine On
+  RewriteCond %{HTTP:Connection} Upgrade [NC]
+  RewriteCond %{HTTP:Upgrade} websocket [NC]
+  RewriteRule /(.*) {{ app['websocket_url'] }} [P,L]
+  {% endif %}
+
+  ErrorLog {{ apache_revproxy_logdir }}/{{ app['name'] }}_error.log
+  CustomLog {{ apache_revproxy_logdir }}/{{ app['name'] }}_access.log common
+</VirtualHost>

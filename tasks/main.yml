@@ -132,6 +132,7 @@
   loop_control:
     loop_var: 'app'
   notify: 'Reload apache'
+  no_log: "{{ not apache_revproxy_debug }}"
   when: app['state'] == 'present'
 
 - name: 'Ensure PAM service files for HBAC enabled apps'
