@@ -17,7 +17,7 @@
   OIDCCryptoPassphrase {{ app['oidc_random_passphrase'] }}
 
   OIDCDefaultURL https://{{ app['name'] }}
-  OIDCRedirectURI https://{{ app['name'] }}/oauth2callback
+  OIDCRedirectURI https://{{ app['name'] }}/dokuwiki/oauth2callback
   OIDCRedirectURLsAllowed {{ app['name'] }}/.*
 
   OIDCClientID {{ app['oidc_client_id'] }}
