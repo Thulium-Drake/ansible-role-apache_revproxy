@@ -14,8 +14,12 @@
   {% if app['hsts'] %}Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains" {% endif %}
 
   OIDCProviderMetadataURL {{ app['oidc_autodiscover_url'] }}
-  OIDCRedirectURI https://{{ app['name'] }}/oauth2callback
   OIDCCryptoPassphrase {{ app['oidc_random_passphrase'] }}
+
+  OIDCDefaultURL {{ app['name'] }}
+  OIDCRedirectURI https://{{ app['name'] }}/oauth2callback
+  OIDCRedirectURLsAllowed {{ app['name'] }}/.*
+
   OIDCClientID {{ app['oidc_client_id'] }}
   OIDCClientSecret {{ app['oidc_client_secret'] }}
 
@@ -24,7 +28,7 @@
 
   <Location />
     AuthType openid-connect
-    Require valid-user
+    Require {{ app['oidc_require_user'] | default('valid-user') }}
   </Location>
 
   RedirectMatch ^/$ /dokuwiki/

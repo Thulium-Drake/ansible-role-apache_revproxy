@@ -7,13 +7,16 @@
   ServerName {{ app['name'] }}
 
   SSLEngine on
-
   SSLCertificateFile {{ app['cert'] }}
   SSLCertificateKeyFile {{ app['key'] }}
 
   OIDCProviderMetadataURL {{ app['oidc_autodiscover_url'] }}
-  OIDCRedirectURI https://{{ app['name'] }}/oauth2callback
   OIDCCryptoPassphrase {{ app['oidc_random_passphrase'] }}
+
+  OIDCDefaultURL {{ app['name'] }}
+  OIDCRedirectURI {{ app['name'] }}/oauth2callback
+  OIDCRedirectURLsAllowed {{ app['name'] }}/.*
+
   OIDCClientID {{ app['oidc_client_id'] }}
   OIDCClientSecret {{ app['oidc_client_secret'] }}
 
@@ -22,7 +25,7 @@
 
   <Location {{ app['location'] | default('/') }}>
     AuthType openid-connect
-    Require valid-user
+    Require {{ app['oidc_require_user'] | default('valid-user') }}
   </Location>
 
 {{ app.extra_config_after_auth | default('') }}
@@ -34,8 +37,6 @@
   AllowEncodedSlashes {{ app['encoded_slashes'] | default('Off') }}
   RequestHeader set X-Forwarded-Proto "https"
   RequestHeader set X-Remote-User %{REMOTE_USER}s
-  {% if app['krb_strip_realm'] | default(false) %}RequestHeader edit X-Remote-User (?=@)(\S+) ''{% endif %}
-
   {% if app['hsts'] %}Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains" {% endif %}
 
   {% if app['websocket'] | default(false) -%}
