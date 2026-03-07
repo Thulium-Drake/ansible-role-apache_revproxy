@@ -16,7 +16,7 @@
   OIDCProviderMetadataURL {{ app['oidc_autodiscover_url'] }}
   OIDCCryptoPassphrase {{ app['oidc_random_passphrase'] }}
 
-  OIDCDefaultURL {{ app['name'] }}
+  OIDCDefaultURL https://{{ app['name'] }}
   OIDCRedirectURI https://{{ app['name'] }}/oauth2callback
   OIDCRedirectURLsAllowed {{ app['name'] }}/.*
 
