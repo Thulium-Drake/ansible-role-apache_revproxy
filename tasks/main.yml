@@ -24,30 +24,21 @@
 - name: 'Setup RHEL'
   when: ansible_facts['os_family'] == 'RedHat'
   block:
-    - name: 'Remove default directories (RedHat)'
-      ansible.builtin.file:
-        path: '/etc/httpd/conf.d'
-        state: 'absent'
-      when:
-        - not apache_certbot
-        - apache_revproxy_package_installed['changed']
-
-    - name: 'Ensure conf.d exists (RedHat)'
-      ansible.builtin.file:
-        path: '/etc/httpd/conf.d'
-        state: 'directory'
-        owner: 'root'
-        group: 'root'
-        mode: '0755'
-
-    - name: 'Ensure default ssl.conf is empty'
+    - name: 'Ensure default config files are empty'
       ansible.builtin.copy:
-        dest: '/etc/httpd/conf.d/ssl.conf'
+        dest: "/etc/httpd/conf.d/{{ apache_default_config }}"
         content: |
           # This file is managed by Ansible, YOUR CHANGES WILL BE LOST!
         owner: 'root'
         group: 'root'
         mode: '0644'
+      loop:
+        - 'auth_openidc.conf'
+        - 'autoindex.conf'
+        - 'rhel-snipolicy.conf'
+        - 'ssl.conf'
+        - 'userdir.conf'
+        - 'welcome.conf'
 
     - name: 'Symlink httpd.conf'
       ansible.builtin.file:
