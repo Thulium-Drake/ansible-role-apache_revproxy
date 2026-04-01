@@ -39,6 +39,8 @@
         - 'ssl.conf'
         - 'userdir.conf'
         - 'welcome.conf'
+      loop_control:
+        loop_var: 'apache_default_config'
 
     - name: 'Symlink httpd.conf'
       ansible.builtin.file:
