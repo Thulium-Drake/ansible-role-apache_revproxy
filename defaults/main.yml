@@ -31,6 +31,8 @@ apache_ssl_protocols: 'TLSv1.2'
 # Kerberos authentication
 # Supported systems: ipa
 apache_kerberos: 'none'
+# Clear and re-download keytab
+apache_reset_keytab: false
 
 # IPA server used when apache_kerberos == 'ipa'
 apache_ipa_server: 'ipa.example.com'

@@ -15,6 +15,12 @@
   delegate_to: "{{ apache_ipa_server }}"
   when: apache_ipa_manage_principal
 
+- name: 'Clear keytak'
+  ansible.builtin.file:
+    path: "{{ apache_revproxy_basedir }}/krb.keytab"
+    state: 'absent'
+  when: apache_reset_keytab
+
 - name: 'Retrieve keytab'
   ansible.builtin.shell: |
     kinit -k
