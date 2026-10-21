@@ -19,9 +19,19 @@
   ProxyPreserveHost on
 
   {% if app.hsts %}Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains" {% endif %}
+  # Nexus PathBased Routing rewrite rules
 
+  # Rewrite all everything that it will match the naming scheme for PBR
   RewriteEngine on
   RewriteRule ^/content/([^/]+)/(.*) /repository/$2 [R=301,L]
+
+  # Docker pushes hit bare /v2/<image>/... but PBR needs /v2/docker-private/<image>/...
+  # Rewrite writes only; skip if already prefixed (avoids double-prefixing PATCH follow-ups).
+  RewriteCond %{REQUEST_METHOD} ^(POST|PATCH|PUT)$
+  RewriteCond %{REQUEST_URI} ^/v2/
+  RewriteCond %{REQUEST_URI} !^/v2/docker-private/
+  RewriteRule ^/v2/(.*)$ http://localhost:8081/v2/docker-private/$1 [P,L]
+  ProxyPassReverse /v2/ http://localhost:8081/v2/docker-private/
 
   {% if nexus_config_npm | default(false) -%}
   AllowEncodedSlashes On
